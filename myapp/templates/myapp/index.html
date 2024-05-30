@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Healthcare AI News</title>
+    <style>
+        body {
+            background-image: url("{% static 'src/background.webp' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+            margin: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .hourglass {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        textarea {
+            width: 90%;
+            height: 80px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"], .back-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover, .back-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+
+            // Hide the form and show the loading screen
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            const analyzeTask = document.getElementById('analyzeTask').value;
+            const summaryTask = document.getElementById('summaryTask').value;
+
+            const response = await fetch('/api/healthcare-ai/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    analyze_task: analyzeTask,
+                    summary_task: summaryTask
+                })
+            });
+
+            const data = await response.json();
+
+            // Hide the loading screen and show the result
+            document.getElementById('loading').classList.add('hidden');
+            const resultCard = document.getElementById('result');
+            resultCard.innerHTML = `<div>${data.result}</div><button class="back-button" onclick="goBack()">Back</button>`;
+            resultCard.classList.remove('hidden');
+        }
+
+        function goBack() {
+            document.getElementById('form-section').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('result').innerHTML = '';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="card" id="form-section">
+            <h1>Healthcare AI News</h1>
+            <form onsubmit="submitForm(event)">
+                <label for="analyzeTask"><h3>Analyze Task: Try this prompt! </h3><br>
+                    <h4>"Conduct a comprehensive analysis of the latest advancements in healthcare AI in 2024. 
+                    Identify key trends, breakthrough technologies, and potential industry impacts."</h4></label><br>
+                <textarea id="analyzeTask" name="analyzeTask" required></textarea><br><br>
+                <label for="summaryTask"><h3>Summary Task: Try this prompt! </h3><br>
+                    <h4>"Using the insights provided, develop an engaging blog post that highlights the most significant AI advancements.
+                    The blog post should be more like a story than rows of bullet points. 
+                    Your post should be informative yet accessible, catering to a tech-savvy audience. 
+                    Make it sound cool, avoid complex words so it doesn't sound like AI."</h4></label><br>
+                <textarea id="summaryTask" name="summaryTask" required></textarea><br><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        <div class="card hidden" id="loading">
+            <div class="hourglass"></div>
+            Loading... This might take 15 minutes or so. Please wait for the response with patience!
+        </div>
+        <div class="card hidden" id="result"></div>
+    </div>
+</body>
+</html>
