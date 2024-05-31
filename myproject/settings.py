@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-(3ay!7hy&@5j+!ajzg!xwjto(6uf=hp$7dks-4hat)esk@#acj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["https://crewai-healthcare.onrender.com"]
+ALLOWED_HOSTS = ["crewai-healthcare.onrender.com"]
 
 
 # Application definition
